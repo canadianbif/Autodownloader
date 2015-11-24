@@ -35,13 +35,17 @@ else
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?1?[0-9]x[0-3][0-9]')
 		CHARTOREMOVE=6
 	fi
-
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		# Process Movies
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?20([[:digit:]]{2} ){3}')
+		CHARTOREMOVE=13
+	fi
+
+	# Process Movies
+	if [[ "$DOWNLOADNAME" = '' ]]; then
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?(480p|720p|1080p)')
 		mv ~/Movies/"$FILENAME" "$MOVIE_DIR"
+	# Process TV Shows
 	else
-		# Process TV Shows
 		SHOWNAME=$(echo $DOWNLOADNAME | rev | cut -c $CHARTOREMOVE- | rev)
 		mkdir -p "$TV_DIR$SHOWNAME"
 
