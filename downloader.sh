@@ -50,7 +50,7 @@ else
 	fi
 	# Full Season
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*(Season|SEASON|season) [\d]+')
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*(Season|SEASON|season) [0-9]+')
 		CHARTOREMOVE=1
 	fi
 
@@ -67,6 +67,7 @@ else
 				perl -nle'print $& if m{^[a-zA-Z0-9 &]+?(?=[^a-zA-Z0-9]*?([Ss]eason|SEASON|[Ss][\d]{1,2}))}' \
 				| rev | cut -c $CHARTOREMOVE- | rev )
 		fi
+		SHOWNAME=$(echo $SHOWNAME | tr '[:upper:]' '[:lower:]')
 		mkdir "$TV_DIR$SHOWNAME"
 
 		# Unzip if file is compressed, otherwise do nothing, then sort
