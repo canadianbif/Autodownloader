@@ -48,6 +48,11 @@ else
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?20([[:digit:]]{2} ){3}')
 		CHARTOREMOVE=13
 	fi
+	# Full Season
+	if [[ "$DOWNLOADNAME" = '' ]]; then
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*(Season|SEASON|season) [\d]+')
+		CHARTOREMOVE=1
+	fi
 
 	# Process Movies
 	if [[ "$DOWNLOADNAME" = '' ]]; then
@@ -55,8 +60,14 @@ else
 		mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR"
 	# Process TV Shows
 	else
-		SHOWNAME=$(echo $DOWNLOADNAME | rev | cut -c $CHARTOREMOVE- | rev)
-		mkdir -p "$TV_DIR$SHOWNAME"
+		if [[ "#CHARTOREMOVE" != '1' ]]; then
+			SHOWNAME=$(echo $DOWNLOADNAME | rev | cut -c $CHARTOREMOVE- | rev)
+		else
+			SHOWNAME=$(echo $DOWNLOADNAME | \
+				perl -nle'print $& if m{^[a-zA-Z0-9 &]+?(?=[^a-zA-Z0-9]*?([Ss]eason|SEASON|[Ss][\d]{1,2}))}' \
+				| rev | cut -c $CHARTOREMOVE- | rev )
+		fi
+		mkdir "$TV_DIR$SHOWNAME"
 
 		# Unzip if file is compressed, otherwise do nothing, then sort
 		if [[ "$ISZIP" ]]; then
