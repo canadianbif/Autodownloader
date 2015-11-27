@@ -60,7 +60,7 @@ else
 		mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR"
 	# Process TV Shows
 	else
-		if [[ "#CHARTOREMOVE" != '1' ]]; then
+		if [[ "$CHARTOREMOVE" != '1' ]]; then
 			SHOWNAME=$(echo $DOWNLOADNAME | rev | cut -c $CHARTOREMOVE- | rev)
 		else
 			SHOWNAME=$(echo $DOWNLOADNAME | \
@@ -72,8 +72,10 @@ else
 
 		# Unzip if file is compressed, otherwise do nothing, then sort
 		if [[ "$ISZIP" ]]; then
-			unzip -o "$TEMP_DIR$FILENAME" -d "$TV_DIR$SHOWNAME"
-			rm "$TEMP_DIR$FILENAME"
+			ZIPSUCCESS=$(unar -o "$TV_DIR$SHOWNAME" "$TEMP_DIR$FILENAME")
+			if [[ "$ZIPSUCCESS" ]]; then
+				rm "$TEMP_DIR$FILENAME"
+			fi
 		else
 			mv "$TEMP_DIR$FILENAME" "$TV_DIR$SHOWNAME"
 		fi
