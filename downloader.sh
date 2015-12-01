@@ -9,7 +9,7 @@ DL_LOG="logs/downloads/"
 mkdir $TEMP_DIR $DL_LOG $MOVIE_DIR $TV_DIR
 
 # Extract filename from download link
-FILENAME=$(echo $1 | egrep -o -e '[^\/]*?\.(zip|avi|mkv|mp4)')
+FILENAME=$(echo $1 | egrep -oe '[^\/]*?\.(zip|avi|mkv|mp4)')
 
 ISZIP=$(echo $FILENAME | egrep -e '(.zip)')
 # If download is not a zip file, then it was manually downloaded, if email was provided send a starting message
@@ -41,30 +41,35 @@ else
 	echo -e $FINISHTIME"\n$FILENAME Download Complete\n\n" >> logs/bashapplication.log
 
 	# Replace non-space characters between words with spaces in the filename
-	FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%20/ /g')
+	FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%([12][0-9A-F]|5[B-F])/ /g')
 	# Determine filename based on if file fits a TV Show name format (US or UK or Daily Show)
 	# Standard US
-	DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?[sS][0-3][0-9][eE][0-3][0-9]')
+	DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
 	CHARTOREMOVE=8
 	# UK
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?1?[0-9]x[0-3][0-9]')
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?1?[0-9]x[0-3][0-9]')
 		CHARTOREMOVE=6
 	fi
 	# Daily Show
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?20([[:digit:]]{2} ){3}')
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?20([[:digit:]]{2} ){3}')
 		CHARTOREMOVE=13
 	fi
 	# Full Season
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*(Season|SEASON|season) [0-9]+')
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(season|s) ?[0-9]{1,2}')
 		CHARTOREMOVE=1
+	fi
+	# Full Series
+	if [[ "$DOWNLOADNAME" = '' ]]; then
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(complete.*series|series.*complete)')
+		CHARTOREMOVE=0
 	fi
 
 	# Process Movies
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -o -e '.*?(480p|720p|1080p)')
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
 		mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR"
 	# Process TV Shows
 	else
