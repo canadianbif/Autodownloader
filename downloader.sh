@@ -41,7 +41,7 @@ else
 	echo -e $FINISHTIME"\n$FILENAME Download Complete\n\n" >> logs/bashapplication.log
 
 	# Replace non-space characters between words with spaces in the filename
-	FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%([12][0-9A-F]|5[B-F])/ /g')
+	FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%[12][0-9A-F]/ /g')
 	# Determine filename based on if file fits a TV Show name format (US or UK or Daily Show)
 	# Standard US
 	DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
