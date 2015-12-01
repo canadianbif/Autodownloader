@@ -5,7 +5,8 @@ NOTIFICATION_EMAIL=$2
 TEMP_DIR=~/"Movies/Incomplete/"
 MOVIE_DIR=~/"Movies/Movies/"
 TV_DIR="/Volumes/TVShowHDD/TV_Shows/"
-mkdir $TEMP_DIR $MOVIE_DIR $TV_DIR
+DL_LOG="logs/downloads/"
+mkdir $TEMP_DIR $DL_LOG $MOVIE_DIR $TV_DIR
 
 # Extract filename from download link
 FILENAME=$(echo $1 | egrep -o -e '[^\/]*?\.(zip|avi|mkv|mp4)')
@@ -17,18 +18,25 @@ if [[ ! "$ISZIP" && "$NOTIFICATION_EMAIL" ]]; then
 fi
 
 # Download file and store output in variable
-AXELOUTPUT=$(axel -a -n 30 -s 5000000 -o "$TEMP_DIR$FILENAME" "$DL_LINK")
+axel -a -n 30 -s 5000000 -o "$TEMP_DIR$FILENAME" "$DL_LINK" &>"$DL_LOG$FILENAME.txt"
+AXELOUTPUT=$(cat "$DL_LOG$FILENAME.txt")
 FINISHTIME=$(date +"%r")
-AXELERROR=$(echo $AXELOUTPUT | grep "100%")
+AXELSUCCESS=$(echo $AXELOUTPUT | grep "100%")
 
-# Determine if download successful or failed
-if [[ ! "$AXELERROR" ]]; then
-	echo -e "\nLink: $DL_LINK failed to download\n" >> logs/basherror.log
+# Download failed
+if [[ ! "$AXELSUCCESS" ]]; then
+	# Log error accordingly
+	LINE="-------------------------------------------------------------------------"
+	echo -e "\n$FINISHTIME:\n$LINE\nLink:\n$DL_LINK\nfailed to download\n" >> logs/basherror.log
+	echo -e "Axel output found at:\n$DL_LOG$FILENAME.txt\n$LINE\n" >> logs/basherror.log
 	echo -e $FINISHTIME"\nError Downloading File: $FILENAME\n\n" >> logs/bashapplication.log
 	if [[ "$NOTIFICATION_EMAIL" ]]; then
 		osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME failed to download."
 	fi
-	# exit 1
+
+	#exit 1
+
+# Download was successful
 else
 	echo -e $FINISHTIME"\n$FILENAME Download Complete\n\n" >> logs/bashapplication.log
 
