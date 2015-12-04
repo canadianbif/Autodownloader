@@ -74,7 +74,7 @@ else
 	# Process Movies
 	if [[ "$DOWNLOADNAME" = '' ]]; then
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
-		mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR"
+		mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
 	# Process TV Shows
 	else
 		if [[ "$CHARTOREMOVE" != '1' ]]; then
