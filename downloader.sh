@@ -62,7 +62,7 @@ else
 	fi
 	# Full Season
 	if [[ "$DOWNLOADNAME" = '' ]]; then
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(season|s) ?[0-9]{1,2}')
+		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(season |s)[0-9]{1,2}')
 		CHARTOREMOVE=1
 	fi
 	# Full Series
