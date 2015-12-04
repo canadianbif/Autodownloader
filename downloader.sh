@@ -23,7 +23,7 @@ fi
 
 # Download file and store output in variable
 axel -a -n 30 -s 20000000 -o "$TEMP_DIR$FILENAME" "$DL_LINK" &>"$DL_LOG$FILENAME.txt"
-AXELOUTPUT=$(cat "$DL_LOG$FILENAME.txt")
+AXELOUTPUT=$(tail -3 "$DL_LOG$FILENAME.txt")
 FINISHTIME=$(date +"%r")
 AXELSUCCESS=$(echo $AXELOUTPUT | grep "100%")
 
@@ -96,6 +96,7 @@ else
 		else
 			mv "$TEMP_DIR$FILENAME" "$TV_DIR$SHOWNAME"
 		fi
+		rm "$DL_LOG$FILENAME.txt"
 	fi
 
 	if [[ "$NOTIFICATION_EMAIL" ]]; then
