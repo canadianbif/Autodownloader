@@ -9,11 +9,15 @@ DL_LOG="logs/downloads/"
 mkdir $TEMP_DIR $DL_LOG $MOVIE_DIR $TV_DIR
 
 # Extract filename from download link
-FILENAME=$(echo $1 | egrep -oe '[^\/]*?\.(zip|avi|mkv|mp4)')
+FILENAME=$(echo $1 | egrep -oe '[^\/]*$.*')
+EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
+if [[ ! "$EXTENSION" ]]; then
+	FILENAME=$(echo "$FILENAME.zip")
+	EXTENSION='.zip'
+fi
 
-ISZIP=$(echo $FILENAME | egrep -e '(.zip)')
 # If download is not a zip file, then it was manually downloaded, if email was provided send a starting message
-if [[ ! "$ISZIP" && "$NOTIFICATION_EMAIL" ]]; then
+if [[ "$EXTENSION" != '.zip' && "$NOTIFICATION_EMAIL" ]]; then
 	osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "Starting download: $FILENAME ...."
 fi
 
@@ -84,7 +88,7 @@ else
 		mkdir "$TV_DIR$SHOWNAME"
 
 		# Unzip if file is compressed, otherwise do nothing, then sort
-		if [[ "$ISZIP" ]]; then
+		if [[ "$EXTENSION" = '.zip' ]]; then
 			ZIPSUCCESS=$(unar -o "$TV_DIR$SHOWNAME" "$TEMP_DIR$FILENAME")
 			if [[ "$ZIPSUCCESS" ]]; then
 				rm "$TEMP_DIR$FILENAME"
