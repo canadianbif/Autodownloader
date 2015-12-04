@@ -96,8 +96,8 @@ else
 		else
 			mv "$TEMP_DIR$FILENAME" "$TV_DIR$SHOWNAME"
 		fi
-		rm "$DL_LOG$FILENAME.txt"
 	fi
+	rm "$DL_LOG$FILENAME.txt"
 
 	if [[ "$NOTIFICATION_EMAIL" ]]; then
 		osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME has been downloaded."
