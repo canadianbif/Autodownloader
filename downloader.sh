@@ -18,7 +18,7 @@ if [[ ! "$ISZIP" && "$NOTIFICATION_EMAIL" ]]; then
 fi
 
 # Download file and store output in variable
-axel -a -n 30 -s 5000000 -o "$TEMP_DIR$FILENAME" "$DL_LINK" &>"$DL_LOG$FILENAME.txt"
+axel -a -n 30 -s 20000000 -o "$TEMP_DIR$FILENAME" "$DL_LINK" &>"$DL_LOG$FILENAME.txt"
 AXELOUTPUT=$(cat "$DL_LOG$FILENAME.txt")
 FINISHTIME=$(date +"%r")
 AXELSUCCESS=$(echo $AXELOUTPUT | grep "100%")
@@ -54,7 +54,7 @@ else
 	# Daily Show
 	if [[ "$DOWNLOADNAME" = '' ]]; then
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?20([[:digit:]]{2} ){3}')
-		CHARTOREMOVE=13
+		CHARTOREMOVE=12
 	fi
 	# Full Season
 	if [[ "$DOWNLOADNAME" = '' ]]; then
