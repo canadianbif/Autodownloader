@@ -9,7 +9,7 @@ DL_LOG="logs/downloads/"
 mkdir $TEMP_DIR $DL_LOG $MOVIE_DIR $TV_DIR
 
 # Extract filename from download link
-FILENAME=$(echo $1 | egrep -oe '[^\/]*$.*')
+FILENAME=$(echo $1 | sed 's/%2F/\//g' | egrep -oe '[^\/]*$.*')
 EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
 if [[ ! "$EXTENSION" ]]; then
 	FILENAME=$(echo "$FILENAME.zip")
