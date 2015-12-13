@@ -74,7 +74,9 @@ else
 	# Process Movies
 	if [[ "$DOWNLOADNAME" = '' ]]; then
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
-		mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
+		if [[ "$DOWNLOADNAME" != '' ]]; then
+			mv "$TEMP_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
+		fi
 	# Process TV Shows
 	else
 		if [[ "$CHARTOREMOVE" != '1' ]]; then
@@ -99,7 +101,12 @@ else
 	fi
 	rm "$DL_LOG$FILENAME.txt"
 
+	# Send success message
 	if [[ "$NOTIFICATION_EMAIL" ]]; then
-		osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME has been downloaded."
+		if [[ "$DOWNLOADNAME" != '' ]]; then
+			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME has been downloaded."
+		else
+			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+		fi
 	fi
 fi
