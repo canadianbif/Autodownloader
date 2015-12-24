@@ -10,16 +10,12 @@ if shlock -f $LOCKFILE -p $$ ; then
 	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
 
 	for FULLFILENAME in $FINISH_DIR*; do
+
 		FILENAME=$(echo $FULLFILENAME | egrep -oe '[^\/]*$.*')
-
 		EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
-		if [[ ! "$EXTENSION" ]]; then
-			FILENAME=$(echo "$FILENAME.zip")
-			EXTENSION='.zip'
-		fi
-
 		# Replace non-space characters between words with spaces in the filename
 		FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%[12][0-9A-F]/ /g')
+
 		# Determine media type and name convention based on filename
 		# Standard US
 		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
@@ -74,12 +70,12 @@ if shlock -f $LOCKFILE -p $$ ; then
 			fi
 		fi
 
-		# NOTIFICATION_EMAIL=bifif123@gmail.com 
-		# if [[ "$DOWNLOADNAME" != '' ]]; then
-		# 	osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy!"
-		# else
-		# 	osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
-		# fi
+		NOTIFICATION_EMAIL="bifif123@gmail.com"
+		if [[ "$DOWNLOADNAME" != '' ]]; then
+			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
+		else
+			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+		fi
 	done
 
 	# If remaining files in finished, call script again
