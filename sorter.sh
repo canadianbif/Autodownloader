@@ -3,11 +3,19 @@
 LOCKFILE=/tmp/sorter.lock
 if shlock -f $LOCKFILE -p $$ ; then
 
-	FINISH_DIR=~/"Movies/Finished/"
-	MOVIE_DIR=~/"Movies/Movies/"
-	#TV_DIR="/Volumes/TVShowHDD/TV_Shows/"
-	TV_DIR=~/"Movies/TV_Shows/"
-	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
+	if [[ $(cat sorter_config.txt) ]]; then
+		while read fin movie tv; do
+			FINISH_DIR=$( echo $fin | grep -oe '[^=]*$' )
+			MOVIE_DIR=$( echo $movie | grep -oe '[^=]*$' )
+			TV_DIR=$( echo $tv | grep -oe '[^=]*$' )
+		done < "sorter_config.txt"
+	else
+		FINISH_DIR=~/Movies/Finished/
+		MOVIE_DIR=~/Movies/Movies/
+		TV_DIR=~/Movies/TV_Shows/
+		mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
+		echo 'FINISH_DIR=~/Movies/Finished/ MOVIE_DIR=~/Movies/Movies/ TV_DIR=~/Movies/TV_Shows/' > sorter_config.txt
+	fi
 
 	for FULLFILENAME in $FINISH_DIR*; do
 
