@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCKFILE=/tmp/sorter.lock
+LOCKFILE=sorter.lock
 if shlock -f $LOCKFILE -p $$ ; then
 
 	if [[ $(cat sorter_config.txt) ]]; then
@@ -10,11 +10,11 @@ if shlock -f $LOCKFILE -p $$ ; then
 			TV_DIR=$( echo $tv | grep -oe '[^=]*$' )
 		done < "sorter_config.txt"
 	else
-		FINISH_DIR=~/Movies/Finished/
-		MOVIE_DIR=~/Movies/Movies/
-		TV_DIR=~/Movies/TV_Shows/
+		FINISH_DIR=/Users/benjaminfeder/Movies/Finished/
+		MOVIE_DIR=/Users/benjaminfeder/Movies/Movies/
+		TV_DIR=/Users/benjaminfeder/Movies/TV_Shows/
 		mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
-		echo 'FINISH_DIR=~/Movies/Finished/ MOVIE_DIR=~/Movies/Movies/ TV_DIR=~/Movies/TV_Shows/' > sorter_config.txt
+		echo 'FINISH_DIR=/Users/benjaminfeder/Movies/Finished/ MOVIE_DIR=/Users/benjaminfeder/Movies/Movies/ TV_DIR=/Users/benjaminfeder/Movies/TV_Shows/' > sorter_config.txt
 	fi
 
 	for FULLFILENAME in $FINISH_DIR*; do
@@ -78,7 +78,7 @@ if shlock -f $LOCKFILE -p $$ ; then
 			fi
 		fi
 
-		NOTIFICATION_EMAIL="bifif123@gmail.com"
+		NOTIFICATION_EMAIL="benjamin.feder@icloud.com"
 		if [[ "$DOWNLOADNAME" != '' ]]; then
 			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
 		else
