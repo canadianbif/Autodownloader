@@ -3,22 +3,20 @@
 LOCKFILE=sorter.lock
 if shlock -f $LOCKFILE -p $$ ; then
 
-	if [[ $(cat sorter_config.txt) ]]; then
-		while read fin movie tv; do
-			FINISH_DIR=$( echo $fin | grep -oe '[^=]*$' )
-			MOVIE_DIR=$( echo $movie | grep -oe '[^=]*$' )
-			TV_DIR=$( echo $tv | grep -oe '[^=]*$' )
-		done < "sorter_config.txt"
-	else
-		FINISH_DIR=/Users/benjaminfeder/Movies/Finished/
-		MOVIE_DIR=/Users/benjaminfeder/Movies/Movies/
-		TV_DIR=/Users/benjaminfeder/Movies/TV_Shows/
-		mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
-		echo 'FINISH_DIR=/Users/benjaminfeder/Movies/Finished/ MOVIE_DIR=/Users/benjaminfeder/Movies/Movies/ TV_DIR=/Users/benjaminfeder/Movies/TV_Shows/' > sorter_config.txt
+	# Grab config file contents and set-up directories based on root directory config variable
+	CONFIG=$(cat config.txt)
+	# Command to grab config variable
+	ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=.*?[\s]' | sed -E 's/ROOT_DIR=//')
+	if [[ ! "$ROOT_DIR" ]]; then
+		ROOT_DIR=/Users/benjaminfeder/Movies/
+		echo 'ROOT_DIR=/Users/benjaminfeder/Movies/' >> config.txt
 	fi
+	FINISH_DIR="${ROOT_DIR}Finished/"
+	MOVIE_DIR="${ROOT_DIR}Movies/"
+	TV_DIR="${ROOT_DIR}TV_Shows/"
+	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
 
 	for FULLFILENAME in $FINISH_DIR*; do
-
 		FILENAME=$(echo $FULLFILENAME | egrep -oe '[^\/]*$.*')
 		EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
 		# Replace non-space characters between words with spaces in the filename
@@ -78,17 +76,19 @@ if shlock -f $LOCKFILE -p $$ ; then
 			fi
 		fi
 
-		NOTIFICATION_EMAIL="benjamin.feder@icloud.com"
-		if [[ "$DOWNLOADNAME" != '' ]]; then
-			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
-		else
-			osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+		NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=.*?[\s]' | sed -E 's/NOTIFICATION_EMAIL=//')
+		if [[ "$NOTIFICATION_EMAIL" ]]; then
+			if [[ "$DOWNLOADNAME" != '' ]]; then
+				osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
+			else
+				osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+			fi
 		fi
 	done
 
+	rm $LOCKFILE
 	# If remaining files in finished, call script again
 	if [[ $(ls $FINISH_DIR) ]]; then
-		rm $LOCKFILE
 		./sorter.sh
 	fi
 fi
