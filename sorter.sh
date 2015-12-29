@@ -9,7 +9,7 @@ if shlock -f $LOCKFILE -p $$ ; then
 	ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=.*?[\s]' | sed -E 's/ROOT_DIR=//')
 	if [[ ! "$ROOT_DIR" ]]; then
 		ROOT_DIR=/Users/benjaminfeder/Movies/
-		echo 'ROOT_DIR=/Users/benjaminfeder/Movies/' >> config.txt
+		echo -e "ROOT_DIR=/Users/benjaminfeder/Movies/\n" >> config.txt
 	fi
 	FINISH_DIR="${ROOT_DIR}Finished/"
 	MOVIE_DIR="${ROOT_DIR}Movies/"
