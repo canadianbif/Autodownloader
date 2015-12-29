@@ -55,7 +55,7 @@
                             FILE_APPEND
                         );
 
-                        $command = './downloader.sh ' . $video_file["url_dl"] . '.zip' . ' 1>>logs/bashapplication.log 2>>logs/basherror.log';
+                        $command = './mediadownloader.sh ' . $video_file["url_dl"] . '.zip' . ' 1>>logs/bashapplication.log 2>>logs/basherror.log';
                         $exit = shell_exec($command);
 
                         $file_label_id = array(
