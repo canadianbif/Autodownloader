@@ -14,9 +14,10 @@ if [[ ! "$EXTENSION" ]]; then
 	EXTENSION='.zip'
 fi
 
-# Config file required newline at end
+# Get notification email from config file variables
 CONFIG=$(cat config.txt)
-NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=.*?[\s]' | sed -E 's/NOTIFICATION_EMAIL=//')
+NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
+echo $NOTIFICATION_EMAIL
 # If download is not a zip file, then it was manually downloaded, if email was provided send a starting message
 if [[ "$EXTENSION" != '.zip' && "$NOTIFICATION_EMAIL" ]]; then
 	osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "Starting download: $FILENAME ...."

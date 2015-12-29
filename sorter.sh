@@ -6,10 +6,10 @@ if shlock -f $LOCKFILE -p $$ ; then
 	# Grab config file contents and set-up directories based on root directory config variable
 	CONFIG=$(cat config.txt)
 	# Command to grab config variable
-	ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=.*?[\s]' | sed -E 's/ROOT_DIR=//')
+	ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=[^ ]*' | sed -E 's/ROOT_DIR=//')
 	if [[ ! "$ROOT_DIR" ]]; then
 		ROOT_DIR=/Users/benjaminfeder/Movies/
-		echo -e "ROOT_DIR=/Users/benjaminfeder/Movies/\n" >> config.txt
+		echo "ROOT_DIR=/Users/benjaminfeder/Movies/" >> config.txt
 	fi
 	FINISH_DIR="${ROOT_DIR}Finished/"
 	MOVIE_DIR="${ROOT_DIR}Movies/"
@@ -76,7 +76,7 @@ if shlock -f $LOCKFILE -p $$ ; then
 			fi
 		fi
 
-		NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=.*?[\s]' | sed -E 's/NOTIFICATION_EMAIL=//')
+		NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
 		if [[ "$NOTIFICATION_EMAIL" ]]; then
 			if [[ "$DOWNLOADNAME" != '' ]]; then
 				osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
