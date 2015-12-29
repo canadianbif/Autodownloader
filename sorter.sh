@@ -20,82 +20,80 @@ if shlock -f $LOCKFILE -p $$ ; then
 		MOVIE_DIR="${ROOT_DIR}Movies/"
 	fi
 	FINISH_DIR="${ROOT_DIR}Finished/"
-	
 	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
 
-	for FULLFILENAME in $FINISH_DIR*; do
-		FILENAME=$(echo $FULLFILENAME | egrep -oe '[^\/]*$.*')
-		EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
-		# Replace non-space characters between words with spaces in the filename
-		FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%[12][0-9A-F]/ /g')
+	# If remaining files in finished, run sorter again
+	while [[ $(ls $FINISH_DIR) ]]; do
 
-		# Determine media type and name convention based on filename
-		# Standard US
-		DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
-		CHARTOREMOVE=8
-		# UK
-		if [[ "$DOWNLOADNAME" = '' ]]; then
-			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?1?[0-9]x[0-3][0-9]')
-			CHARTOREMOVE=6
-		fi
-		# Daily Show
-		if [[ "$DOWNLOADNAME" = '' ]]; then
-			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?20([[:digit:]]{2} ){3}')
-			CHARTOREMOVE=12
-		fi
-		# Full Season
-		if [[ "$DOWNLOADNAME" = '' ]]; then
-			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(season |s)[0-9]{1,2}')
-			CHARTOREMOVE=1
-		fi
-		# Full Series
-		if [[ "$DOWNLOADNAME" = '' ]]; then
-			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(complete.*series|series.*complete)')
-			CHARTOREMOVE=0
-		fi
+		for FULLFILENAME in $FINISH_DIR*; do
+			FILENAME=$(echo $FULLFILENAME | egrep -oe '[^\/]*$.*')
+			EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
+			# Replace non-space characters between words with spaces in the filename
+			FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%[12][0-9A-F]/ /g')
 
-		# Process Movies
-		if [[ "$DOWNLOADNAME" = '' ]]; then
-			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
-			if [[ "$DOWNLOADNAME" != '' ]]; then
-				mv "$FINISH_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
+			# Determine media type and name convention based on filename
+			# Standard US
+			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
+			CHARTOREMOVE=8
+			# UK
+			if [[ "$DOWNLOADNAME" = '' ]]; then
+				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?1?[0-9]x[0-3][0-9]')
+				CHARTOREMOVE=6
 			fi
-		# Process TV Shows
-		else
-			if [[ "$CHARTOREMOVE" != '1' ]]; then
-				SHOWNAME=$(echo $DOWNLOADNAME | rev | cut -c $CHARTOREMOVE- | rev)
-			else
-				SHOWNAME=$(echo $DOWNLOADNAME | \
-					perl -nle'print $& if m{^[a-zA-Z0-9 &]+?(?=[^a-zA-Z0-9]*?([Ss]eason|SEASON|[Ss][\d]{1,2}))}' \
-					| rev | cut -c $CHARTOREMOVE- | rev )
+			# Daily Show
+			if [[ "$DOWNLOADNAME" = '' ]]; then
+				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?20([[:digit:]]{2} ){3}')
+				CHARTOREMOVE=12
 			fi
-			SHOWNAME=$(echo $SHOWNAME | tr '[:upper:]' '[:lower:]')
-			mkdir "$TV_DIR$SHOWNAME"
+			# Full Season
+			if [[ "$DOWNLOADNAME" = '' ]]; then
+				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(season |s)[0-9]{1,2}')
+				CHARTOREMOVE=1
+			fi
+			# Full Series
+			if [[ "$DOWNLOADNAME" = '' ]]; then
+				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(complete.*series|series.*complete)')
+				CHARTOREMOVE=0
+			fi
 
-			# Unzip if file is compressed, otherwise do nothing, then sort
-			if [[ "$EXTENSION" = '.zip' ]]; then
-				ZIPSUCCESS=$(unar -o "$TV_DIR$SHOWNAME" "$FINISH_DIR$FILENAME")
-				if [[ "$ZIPSUCCESS" ]]; then
-					rm "$FINISH_DIR$FILENAME"
+			# Process Movies
+			if [[ "$DOWNLOADNAME" = '' ]]; then
+				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
+				if [[ "$DOWNLOADNAME" != '' ]]; then
+					mv "$FINISH_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
 				fi
+			# Process TV Shows
 			else
-				mv "$FINISH_DIR$FILENAME" "$TV_DIR$SHOWNAME"
-			fi
-		fi
+				if [[ "$CHARTOREMOVE" != '1' ]]; then
+					SHOWNAME=$(echo $DOWNLOADNAME | rev | cut -c $CHARTOREMOVE- | rev)
+				else
+					SHOWNAME=$(echo $DOWNLOADNAME | \
+						perl -nle'print $& if m{^[a-zA-Z0-9 &]+?(?=[^a-zA-Z0-9]*?([Ss]eason|SEASON|[Ss][\d]{1,2}))}' \
+						| rev | cut -c $CHARTOREMOVE- | rev )
+				fi
+				SHOWNAME=$(echo $SHOWNAME | tr '[:upper:]' '[:lower:]')
+				mkdir "$TV_DIR$SHOWNAME"
 
-		NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
-		if [[ "$NOTIFICATION_EMAIL" ]]; then
-			if [[ "$DOWNLOADNAME" != '' ]]; then
-				osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
-			else
-				osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+				# Unzip if file is compressed, otherwise do nothing, then sort
+				if [[ "$EXTENSION" = '.zip' ]]; then
+					ZIPSUCCESS=$(unar -o "$TV_DIR$SHOWNAME" "$FINISH_DIR$FILENAME")
+					if [[ "$ZIPSUCCESS" ]]; then
+						rm "$FINISH_DIR$FILENAME"
+					fi
+				else
+					mv "$FINISH_DIR$FILENAME" "$TV_DIR$SHOWNAME"
+				fi
 			fi
-		fi
+
+			NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
+			if [[ "$NOTIFICATION_EMAIL" ]]; then
+				if [[ "$DOWNLOADNAME" != '' ]]; then
+					osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
+				else
+					osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+				fi
+			fi
+
+		done
 	done
-
-	rm $LOCKFILE
-	# If remaining files in finished, call script again
-	if [[ $(ls $FINISH_DIR) ]]; then
-		./sorter.sh
-	fi
 fi
