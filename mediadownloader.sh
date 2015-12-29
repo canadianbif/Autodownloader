@@ -1,8 +1,16 @@
 #!/bin/bash
 DL_LINK=$1
 
-TEMP_DIR=~/"Movies/Incomplete/"
-FINISH_DIR=~/"Movies/Finished/"
+# Get config file variables
+CONFIG=$(cat config.txt)
+NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
+ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=[^ ]*' | sed -E 's/ROOT_DIR=//')
+if [[ ! "$ROOT_DIR" ]]; then
+	ROOT_DIR=/Users/benjaminfeder/Movies/
+	echo "ROOT_DIR=/Users/benjaminfeder/Movies/" >> config.txt
+fi
+TEMP_DIR="${ROOT_DIR}Incomplete/"
+FINISH_DIR="${ROOT_DIR}Finished/"
 DL_LOG="logs/downloads/"
 mkdir $TEMP_DIR $DL_LOG $FINISH_DIR
 
@@ -14,10 +22,6 @@ if [[ ! "$EXTENSION" ]]; then
 	EXTENSION='.zip'
 fi
 
-# Get notification email from config file variables
-CONFIG=$(cat config.txt)
-NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
-echo $NOTIFICATION_EMAIL
 # If download is not a zip file, then it was manually downloaded, if email was provided send a starting message
 if [[ "$EXTENSION" != '.zip' && "$NOTIFICATION_EMAIL" ]]; then
 	osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "Starting download: $FILENAME ...."

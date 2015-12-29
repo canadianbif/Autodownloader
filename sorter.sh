@@ -5,15 +5,22 @@ if shlock -f $LOCKFILE -p $$ ; then
 
 	# Grab config file contents and set-up directories based on root directory config variable
 	CONFIG=$(cat config.txt)
-	# Command to grab config variable
+	# Initialize all config variables
 	ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=[^ ]*' | sed -E 's/ROOT_DIR=//')
 	if [[ ! "$ROOT_DIR" ]]; then
 		ROOT_DIR=/Users/benjaminfeder/Movies/
 		echo "ROOT_DIR=/Users/benjaminfeder/Movies/" >> config.txt
 	fi
+	TV_DIR=$(echo "$CONFIG" | egrep -e 'TV_DIR=[^ ]*' | sed -E 's/TV_DIR=//')
+	if [[ ! "$TV_DIR" ]]; then
+		TV_DIR="${ROOT_DIR}TV_Shows/"
+	fi
+	MOVIE_DIR=$(echo "$CONFIG" | egrep -e 'MOVIE_DIR=[^ ]*' | sed -E 's/MOVIE_DIR=//')
+	if [[ ! "$MOVIE_DIR" ]]; then
+		MOVIE_DIR="${ROOT_DIR}Movies/"
+	fi
 	FINISH_DIR="${ROOT_DIR}Finished/"
-	MOVIE_DIR="${ROOT_DIR}Movies/"
-	TV_DIR="${ROOT_DIR}TV_Shows/"
+	
 	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
 
 	for FULLFILENAME in $FINISH_DIR*; do
