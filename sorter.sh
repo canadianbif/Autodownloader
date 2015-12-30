@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOCKFILE=sorter.lock
-if shlock -f $LOCKFILE -p $$ ; then
+if shlock -d -f $LOCKFILE -p $$ ; then
 
 	# Grab config file contents and set-up directories based on root directory config variable
 	CONFIG=$(cat config.txt)
@@ -96,4 +96,6 @@ if shlock -f $LOCKFILE -p $$ ; then
 
 		done
 	done
+
+	rm $LOCKFILE
 fi
