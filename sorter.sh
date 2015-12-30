@@ -1,7 +1,8 @@
 #!/bin/bash
 
 LOCKFILE=sorter.lock
-if shlock -d -f $LOCKFILE -p $$ ; then
+if [ ! -e "$LOCKFILE" ]; then
+	echo $$ > "$LOCKFILE"
 
 	# Grab config file contents and set-up directories based on root directory config variable
 	CONFIG=$(cat config.txt)
