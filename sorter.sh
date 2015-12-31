@@ -1,11 +1,11 @@
 #!/bin/bash
 
-LOCKFILE=sorter.lock
+LOCKFILE="/Users/benjaminfeder/Movies/Autodownloader/sorter.lock"
 if [ ! -e "$LOCKFILE" ]; then
 	echo $$ > "$LOCKFILE"
 
 	# Grab config file contents and set-up directories based on root directory config variable
-	CONFIG=$(cat config.txt)
+	CONFIG=$(cat /Users/benjaminfeder/Movies/Autodownloader/config.txt)
 	# Initialize all config variables
 	ROOT_DIR=$(echo "$CONFIG" | egrep -e 'ROOT_DIR=[^ ]*' | sed -E 's/ROOT_DIR=//')
 	if [[ ! "$ROOT_DIR" ]]; then
