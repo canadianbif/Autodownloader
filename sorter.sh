@@ -4,6 +4,8 @@ LOCKFILE="/Users/benjaminfeder/Movies/Autodownloader/sorter.lock"
 if [ ! -e "$LOCKFILE" ]; then
 	echo $$ > "$LOCKFILE"
 
+	MESSAGESCRIPT="/Users/benjaminfeder/Movies/Autodownloader/sendFinishedMessage.applescript"
+
 	# Grab config file contents and set-up directories based on root directory config variable
 	CONFIG=$(cat /Users/benjaminfeder/Movies/Autodownloader/config.txt)
 	# Initialize all config variables
@@ -89,9 +91,9 @@ if [ ! -e "$LOCKFILE" ]; then
 			NOTIFICATION_EMAIL=$(echo "$CONFIG" | egrep -e 'NOTIFICATION_EMAIL=[^ ]*' | sed -E 's/NOTIFICATION_EMAIL=//')
 			if [[ "$NOTIFICATION_EMAIL" ]]; then
 				if [[ "$DOWNLOADNAME" != '' ]]; then
-					osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
+					osascript "$MESSAGESCRIPT" $NOTIFICATION_EMAIL "$DOWNLOADNAME is ready to watch. Enjoy"'!'
 				else
-					osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
+					osascript "$MESSAGESCRIPT" $NOTIFICATION_EMAIL "$FILENAME has been downloaded, but requires manual sorting."
 				fi
 			fi
 
