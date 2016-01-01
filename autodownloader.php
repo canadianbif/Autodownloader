@@ -1,8 +1,8 @@
 <?php
     fclose(STDOUT);
     fclose(STDERR);
-    $STDOUT = fopen('logs/phpapplication.log', 'ab');
-    $STDERR = fopen('logs/phperror.log', 'ab');
+    $STDOUT = fopen('logs/autodl_output.log', 'ab');
+    $STDERR = fopen('logs/autodl_error.log', 'ab');
 
     $config_file = file("config.txt");
     for ($i = 0; $i < count($config_file); $i++) {
@@ -33,7 +33,7 @@
 
         date_default_timezone_set('America/New_York');
         $date = "\n" . date("m/d/Y h:i:s a");
-        file_put_contents("logs/phpapplication.log", $date . "\nAUTODOWNLOADER PROCESS STARTED\n\n", FILE_APPEND);
+        file_put_contents("logs/autodl_output.log", $date . "\nAUTODOWNLOADER PROCESS STARTED\n\n", FILE_APPEND);
 
         $api_key = array(
             'api_key' => $raw_api_key
@@ -48,14 +48,7 @@
                     if (!in_array("9749447826108549012", $video_file["id_labels"])
                                     && ($video_file["id_feeds"] != "0")) {
 
-                        $date = date("m/d/Y\nh:i:s a");
-                        file_put_contents(
-                            "logs/bashapplication.log", 
-                            $date . ": \nDownloading " . $video_file["name"] . " ....\n", 
-                            FILE_APPEND
-                        );
-
-                        $command = './mediadownloader.sh ' . $video_file["url_dl"] . '.zip' . ' 1>>logs/bashapplication.log 2>>logs/basherror.log';
+                        $command = './mediadownloader.sh ' . $video_file["url_dl"] . '.zip' . ' 1>>logs/mediadl_output.log 2>>logs/mediadl_error.log';
                         $exit = shell_exec($command);
 
                         $file_label_id = array(
@@ -71,7 +64,7 @@
         }
     } catch (Exception $e) {
         file_put_contents(
-            "logs/phperror.log",
+            "logs/autodl_error.log",
             '* Caught exception: ' . $e->getMessage() . "\n",
             FILE_APPEND
         );

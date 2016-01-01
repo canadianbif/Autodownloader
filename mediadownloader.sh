@@ -11,7 +11,7 @@ if [[ ! "$ROOT_DIR" ]]; then
 fi
 TEMP_DIR="${ROOT_DIR}Incomplete/"
 FINISH_DIR="${ROOT_DIR}Finished/"
-DL_LOG="logs/downloads/"
+DL_LOG="logs/axel_output/"
 mkdir $TEMP_DIR $DL_LOG $FINISH_DIR
 
 # Extract filename from download link
@@ -27,19 +27,22 @@ if [[ "$EXTENSION" != '.zip' && "$NOTIFICATION_EMAIL" ]]; then
 	osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "Starting download: $FILENAME ...."
 fi
 
+STARTTIME=$(date "+%m/%d/%Y%n%r")
+echo -e "${STARTTIME}\nDownloading $FILENAME ....\n" >> logs/mediadl_output.log
+
 # Download file and store output in variable
 axel -a -n 30 -s 20000000 -o "$TEMP_DIR$FILENAME" "$DL_LINK" &>"$DL_LOG$FILENAME.txt"
 AXELOUTPUT=$(tail -3 "$DL_LOG$FILENAME.txt")
-FINISHTIME=$(date +"%r")
+FINISHTIME=$(date "+%r")
 AXELSUCCESS=$(echo $AXELOUTPUT | grep "100%")
 
 # Download failed
 if [[ ! "$AXELSUCCESS" ]]; then
 	# Log error accordingly
 	LINE="-------------------------------------------------------------------------"
-	echo -e "\n$FINISHTIME:\n$LINE\nLink:\n$DL_LINK\nfailed to download\n" >> logs/basherror.log
-	echo -e "Axel output found at:\n$DL_LOG$FILENAME.txt\n$LINE\n" >> logs/basherror.log
-	echo -e $FINISHTIME"\nError Downloading File: $FILENAME\n\n" >> logs/bashapplication.log
+	echo -e "\n$FINISHTIME:\n$LINE\nLink:\n$DL_LINK\nfailed to download\n" >> logs/mediadl_error.log
+	echo -e "Axel output found at:\n$DL_LOG$FILENAME.txt\n$LINE\n" >> logs/mediadl_error.log
+	echo -e $FINISHTIME"\nError Downloading File: $FILENAME\n\n" >> logs/mediadl_output.log
 	if [[ "$NOTIFICATION_EMAIL" ]]; then
 		osascript sendFinishedMessage.applescript $NOTIFICATION_EMAIL "$FILENAME failed to download."
 	fi
@@ -48,7 +51,7 @@ if [[ ! "$AXELSUCCESS" ]]; then
 
 # Download was successful
 else
-	echo -e $FINISHTIME"\n$FILENAME Download Complete\n\n" >> logs/bashapplication.log
+	echo -e $FINISHTIME"\n$FILENAME Download Complete\n\n" >> logs/mediadl_output.log
 
 	mv "$TEMP_DIR$FILENAME" "$FINISH_DIR$FILENAME"
 	rm "$DL_LOG$FILENAME.txt"
