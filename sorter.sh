@@ -22,8 +22,9 @@ if [ ! -e "$LOCKFILE" ]; then
 	if [[ ! "$MOVIE_DIR" ]]; then
 		MOVIE_DIR="${ROOT_DIR}Movies/"
 	fi
+	REQ_SORT="${ROOT_DIR}Requires_Sorting/"
 	FINISH_DIR="${ROOT_DIR}Finished/"
-	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR
+	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR $REQ_SORT
 
 	# If remaining files in finished, run sorter again
 	while [[ $(ls $FINISH_DIR) ]]; do
@@ -64,6 +65,8 @@ if [ ! -e "$LOCKFILE" ]; then
 				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
 				if [[ "$DOWNLOADNAME" != '' ]]; then
 					mv "$FINISH_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
+				else
+					mv "$FINISH_DIR$FILENAME" "$REQ_SORT"
 				fi
 			# Process TV Shows
 			else
