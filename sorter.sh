@@ -22,9 +22,12 @@ if [ ! -e "$LOCKFILE" ]; then
 	if [[ ! "$MOVIE_DIR" ]]; then
 		MOVIE_DIR="${ROOT_DIR}Movies/"
 	fi
-	REQ_SORT="${ROOT_DIR}Requires_Sorting/"
+	SORT_DIR=$(echo "$CONFIG" | egrep -e 'SORT_DIR=[^ ]*' | sed -E 's/SORT_DIR=//')
+	if [[ ! "$SORT_DIR" ]]; then
+		SORT_DIR="${ROOT_DIR}Requires_Sorting/"
+	fi
 	FINISH_DIR="${ROOT_DIR}Finished/"
-	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR $REQ_SORT
+	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR $SORT_DIR
 
 	# If remaining files in finished, run sorter again
 	while [[ $(ls $FINISH_DIR) ]]; do
@@ -66,7 +69,7 @@ if [ ! -e "$LOCKFILE" ]; then
 				if [[ "$DOWNLOADNAME" != '' ]]; then
 					mv "$FINISH_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
 				else
-					mv "$FINISH_DIR$FILENAME" "$REQ_SORT"
+					mv "$FINISH_DIR$FILENAME" "$SORT_DIR"
 				fi
 			# Process TV Shows
 			else
