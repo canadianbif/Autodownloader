@@ -27,7 +27,10 @@ if [ ! -e "$LOCKFILE" ]; then
 		SORT_DIR="${ROOT_DIR}Requires_Sorting/"
 	fi
 	FINISH_DIR="${ROOT_DIR}Finished/"
-	mkdir $MOVIE_DIR $TV_DIR $FINISH_DIR $SORT_DIR
+	[ -d $MOVIE_DIR ] || mkdir $MOVIE_DIR
+	[ -d $TV_DIR ] || mkdir $TV_DIR
+	[ -d $FINISH_DIR ] || mkdir $FINISH_DIR
+	[ -d $SORT_DIR ] || mkdir $SORT_DIR
 
 	# If remaining files in finished, run sorter again
 	while [[ $(ls $FINISH_DIR) ]]; do
@@ -81,7 +84,7 @@ if [ ! -e "$LOCKFILE" ]; then
 						| rev | cut -c $CHARTOREMOVE- | rev )
 				fi
 				SHOWNAME=$(echo $SHOWNAME | tr '[:upper:]' '[:lower:]')
-				mkdir "$TV_DIR$SHOWNAME"
+				[ -d "$TV_DIR$SHOWNAME" ] || mkdir "$TV_DIR$SHOWNAME"
 
 				# Unzip if file is compressed, otherwise do nothing, then sort
 				if [[ "$EXTENSION" = '.zip' ]]; then
