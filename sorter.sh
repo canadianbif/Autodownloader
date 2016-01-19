@@ -39,36 +39,36 @@ if [ ! -e "$LOCKFILE" ]; then
 			FILENAME=$(echo $FULLFILENAME | egrep -oe '[^\/]*$.*')
 			EXTENSION=$(echo $FILENAME | egrep -oe '.(zip|avi|mp4|mkv)')
 			# Replace non-space characters between words with spaces in the filename
-			FILENAMEWITHSPACES=$(echo $FILENAME | tr ._ ' ' | sed 's/%[12][0-9A-F]/ /g')
+			FILENAMEWITHPERIODS=$(echo $FILENAME | tr ' _' '.' | sed 's/%[12][0-9A-F]/./g')
 
 			# Determine media type and name convention based on filename
 			# Standard US
-			DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
+			DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oe '.*?[sS][0-3][0-9][eE][0-3][0-9]')
 			CHARTOREMOVE=8
 			# UK
 			if [[ "$DOWNLOADNAME" = '' ]]; then
-				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?1?[0-9]x[0-3][0-9]')
+				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oe '.*?1?[0-9]x[0-3][0-9]')
 				CHARTOREMOVE=6
 			fi
 			# Daily Show
 			if [[ "$DOWNLOADNAME" = '' ]]; then
-				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?20([[:digit:]]{2} ){3}')
+				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oe '.*?20([[:digit:]]{2}.){3}')
 				CHARTOREMOVE=12
 			fi
 			# Full Season
 			if [[ "$DOWNLOADNAME" = '' ]]; then
-				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(season |s)[0-9]{1,2}')
+				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oie '.*(season.|s)[0-9]{1,2}')
 				CHARTOREMOVE=1
 			fi
 			# Full Series
 			if [[ "$DOWNLOADNAME" = '' ]]; then
-				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oie '.*(complete.*series|series.*complete)')
+				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oie '.*(complete.*series|series.*complete)')
 				CHARTOREMOVE=0
 			fi
 
 			# Process Movies
 			if [[ "$DOWNLOADNAME" = '' ]]; then
-				DOWNLOADNAME=$(echo $FILENAMEWITHSPACES | egrep -oe '.*?(480p|720p|1080p)')
+				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oe '.*?(480p|720p|1080p|480P|720P|1080P)')
 				if [[ "$DOWNLOADNAME" != '' ]]; then
 					mv "$FINISH_DIR$FILENAME" "$MOVIE_DIR$DOWNLOADNAME$EXTENSION"
 				else
