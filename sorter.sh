@@ -52,7 +52,7 @@ if [ ! -e "$LOCKFILE" ]; then
 			fi
 			# Daily Show
 			if [[ "$DOWNLOADNAME" = '' ]]; then
-				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oe '.*?20([[:digit:]]{2}.){3}')
+				DOWNLOADNAME=$(echo $FILENAMEWITHPERIODS | egrep -oe '.*?20([[:digit:]]{2}.){2}[[:digit:]]{2}')
 				CHARTOREMOVE=12
 			fi
 			# Full Season
@@ -90,7 +90,8 @@ if [ ! -e "$LOCKFILE" ]; then
 				if [[ "$EXTENSION" = '.zip' ]]; then
 					ZIPSUCCESS=$(unar -o "$TV_DIR$SHOWNAME" "$FINISH_DIR$FILENAME")
 					if [[ "$ZIPSUCCESS" ]]; then
-						rm "$FINISH_DIR$FILENAME"
+						echo "Zipfile needs deletion: $FILENAME"
+						#rm "$FINISH_DIR$FILENAME"
 					fi
 				else
 					mv "$FINISH_DIR$FILENAME" "$TV_DIR$SHOWNAME"
